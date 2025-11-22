@@ -3,10 +3,25 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const { id } = await params
+    // 兼容 Next.js 15 的新参数格式
+    let id: string
+    if (context.params && typeof context.params === 'object' && 'then' in context.params) {
+      // Next.js 15: params 是 Promise
+      const resolvedParams = await context.params
+      id = resolvedParams.id
+    } else if (context.params && typeof context.params.id === 'string') {
+      // 兼容性：直接对象
+      id = context.params.id
+    } else {
+      // 从 URL 路径中直接获取
+      const url = new URL(request.url)
+      const pathSegments = url.pathname.split('/')
+      id = pathSegments[pathSegments.length - 1]
+    }
+    
     const sessionId = parseInt(id)
 
     if (isNaN(sessionId)) {

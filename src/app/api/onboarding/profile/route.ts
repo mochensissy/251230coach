@@ -2,19 +2,24 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
-const createDbNotReadyResponse = () =>
+const createDbNotReadyResponse = (details?: string) =>
   NextResponse.json(
     {
       error: '系统暂时无法保存信息，请联系管理员检查数据库配置后再试',
+      details: details || '数据库连接失败',
+      suggestion: '请检查数据库配置和连接设置',
     },
     { status: 503 }
   )
 
 export async function POST(request: NextRequest) {
+  // 首先检查数据库URL是否存在
   if (!process.env.DATABASE_URL) {
-    console.error('DATABASE_URL is not defined')
-    return createDbNotReadyResponse()
+    console.error('DATABASE_URL environment variable is not defined')
+    return createDbNotReadyResponse('DATABASE_URL环境变量未设置')
   }
+
+  console.log('Processing onboarding request with DATABASE_URL:', process.env.DATABASE_URL)
 
   try {
     const body = await request.json()
@@ -35,6 +40,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    console.log('Creating/updating user:', username)
 
     // 创建或更新用户
     const user = await prisma.user.upsert({
@@ -61,6 +68,8 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    console.log('User created/updated successfully:', user.id)
+
     return NextResponse.json({
       success: true,
       user: {
@@ -72,7 +81,8 @@ export async function POST(request: NextRequest) {
     console.error('Onboarding error:', error)
 
     if (error instanceof Prisma.PrismaClientInitializationError) {
-      return createDbNotReadyResponse()
+      console.error('Prisma initialization error:', error.message)
+      return createDbNotReadyResponse('Prisma客户端初始化失败')
     }
 
     if (

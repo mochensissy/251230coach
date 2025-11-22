@@ -121,6 +121,7 @@ export default function DashboardPage() {
                     width={160}
                     height={160}
                     className="rounded-lg"
+                    style={{ width: 'auto', height: 'auto', maxWidth: '160px', maxHeight: '160px' }}
                     unoptimized
                   />
                 </div>
@@ -149,6 +150,7 @@ export default function DashboardPage() {
                     width={160}
                     height={160}
                     className="rounded-lg"
+                    style={{ width: 'auto', height: 'auto', maxWidth: '160px', maxHeight: '160px' }}
                     unoptimized
                   />
                 </div>
