@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useUserStore, useSessionStore } from '@/lib/store'
 import { MessageCircle, TrendingUp, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
+import Image from 'next/image'
 
 interface Session {
   id: number
@@ -100,30 +101,58 @@ export default function DashboardPage() {
           <div className="grid md:grid-cols-2 gap-4">
             <button
               onClick={() => startNewSession('work_problem')}
-              className="bg-white text-gray-900 p-6 rounded-xl hover:shadow-xl transition-all text-left group"
+              className="bg-white text-gray-900 p-6 rounded-xl hover:shadow-xl transition-all text-left group relative overflow-hidden"
             >
-              <MessageCircle className="w-8 h-8 text-primary-600 mb-3" />
-              <h3 className="text-xl font-bold mb-2">工作难题</h3>
-              <p className="text-gray-600 text-sm">
-                在实际工作中遇到挑战,通过教练式提问,探索解决方案
-              </p>
-              <p className="text-primary-600 text-sm mt-3 font-medium group-hover:translate-x-2 transition-transform">
-                开始对话 →
-              </p>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <MessageCircle className="w-8 h-8 text-primary-600 mb-3" />
+                  <h3 className="text-xl font-bold mb-2">工作难题</h3>
+                  <p className="text-gray-600 text-sm">
+                    在实际工作中遇到挑战,通过教练式提问,探索解决方案
+                  </p>
+                  <p className="text-primary-600 text-sm mt-3 font-medium group-hover:translate-x-2 transition-transform">
+                    开始对话 →
+                  </p>
+                </div>
+                <div className="flex-shrink-0 ml-4">
+                  <Image
+                    src="/work-problem.jpg"
+                    alt="工作难题"
+                    width={160}
+                    height={160}
+                    className="rounded-lg"
+                    unoptimized
+                  />
+                </div>
+              </div>
             </button>
 
             <button
               onClick={() => startNewSession('career_development')}
-              className="bg-white text-gray-900 p-6 rounded-xl hover:shadow-xl transition-all text-left group"
+              className="bg-white text-gray-900 p-6 rounded-xl hover:shadow-xl transition-all text-left group relative overflow-hidden"
             >
-              <TrendingUp className="w-8 h-8 text-indigo-600 mb-3" />
-              <h3 className="text-xl font-bold mb-2">职业发展</h3>
-              <p className="text-gray-600 text-sm">
-                对职业路径有迷茫,一起厘清思路,制定发展计划
-              </p>
-              <p className="text-indigo-600 text-sm mt-3 font-medium group-hover:translate-x-2 transition-transform">
-                开始对话 →
-              </p>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <TrendingUp className="w-8 h-8 text-indigo-600 mb-3" />
+                  <h3 className="text-xl font-bold mb-2">职业发展</h3>
+                  <p className="text-gray-600 text-sm">
+                    对职业路径有迷茫,一起厘清思路,制定发展计划
+                  </p>
+                  <p className="text-indigo-600 text-sm mt-3 font-medium group-hover:translate-x-2 transition-transform">
+                    开始对话 →
+                  </p>
+                </div>
+                <div className="flex-shrink-0 ml-4">
+                  <Image
+                    src="/career-development.jpg"
+                    alt="职业发展"
+                    width={160}
+                    height={160}
+                    className="rounded-lg"
+                    unoptimized
+                  />
+                </div>
+              </div>
             </button>
           </div>
         </div>
