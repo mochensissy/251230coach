@@ -15,7 +15,10 @@ datasource db {
 model User {
   id                    Int       @id @default(autoincrement())
   username              String    @unique
+  password              String    // 密码哈希
   email                 String?
+  isAdmin               Boolean   @default(false) // 是否为管理员
+  activationCodeId      Int?      // 使用的激活码ID
   role                  String?   // '团队负责人/管理者', '核心骨干/资深专家', '团队成员/执行者'
   businessLine          String?   // '技术/研发', '产品/运营', etc.
   workStyle             String?   // '数据驱动,逻辑严谨', etc.
@@ -28,8 +31,26 @@ model User {
   sessions              Session[]
   summaryReports        SummaryReport[]
   feedback              Feedback[]
+  activationCode        ActivationCode? @relation(fields: [activationCodeId], references: [id])
 
   @@map("users")
+}
+
+// 激活码表
+model ActivationCode {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique // 激活码
+  isUsed      Boolean   @default(false) // 是否已使用
+  usedBy      Int?      // 使用者ID
+  createdBy   String?   // 创建者（管理员用户名）
+  note        String?   // 备注
+  expiresAt   DateTime? // 过期时间
+  usedAt      DateTime? // 使用时间
+  createdAt   DateTime  @default(now())
+
+  users       User[]
+
+  @@map("activation_codes")
 }
 
 // 2. 对话会话表
@@ -120,4 +141,15 @@ model Setting {
   updatedAt   DateTime  @updatedAt
 
   @@map("settings")
+}
+
+// 8. 管理员日志表
+model AdminLog {
+  id          Int       @id @default(autoincrement())
+  adminName   String    // 管理员用户名
+  action      String    // 操作类型：create_code, update_api, etc.
+  details     String?   // 操作详情 (JSON)
+  createdAt   DateTime  @default(now())
+
+  @@map("admin_logs")
 }

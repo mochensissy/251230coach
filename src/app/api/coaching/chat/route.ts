@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import {
-  deepseek,
+  DeepseekClient,
   buildCoachingSystemPrompt,
   detectGROWPhase,
   getPhaseName,
@@ -25,47 +25,59 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 检查 Deepseek API 密钥
-    if (!process.env.DEEPSEEK_API_KEY) {
-      // 模拟响应用于临时测试
-      console.warn('Deepseek API 密钥未配置，使用模拟响应')
+    // 从数据库获取 DeepSeek API Key 配置
+    const apiKeySetting = await prisma.setting.findUnique({
+      where: { key: 'deepseek_api_key' },
+    });
+
+    const deepseekApiKey = apiKeySetting?.value || process.env.DEEPSEEK_API_KEY;
+
+    if (!deepseekApiKey) {
+      return new Response(
+        JSON.stringify({ error: 'DeepSeek API 未配置，请联系管理员' }),
+        { status: 503 }
+      )
+    }
+
+    // 使用配置的 API Key 创建客户端
+    const deepseekClient = new DeepseekClient(deepseekApiKey);
       
-      // 获取会话信息
-      const session = await prisma.session.findUnique({
-        where: { id: parseInt(sessionId) },
-        include: {
-          user: true,
-          messages: {
-            orderBy: { createdAt: 'asc' },
-          },
+    // 获取会话信息
+    const session = await prisma.session.findUnique({
+      where: { id: parseInt(sessionId) },
+      include: {
+        user: true,
+        messages: {
+          orderBy: { createdAt: 'asc' },
         },
-      })
+      },
+    })
 
-      if (!session) {
-        return new Response(
-          JSON.stringify({ error: '会话不存在' }),
-          { status: 404 }
-        )
-      }
+    if (!session) {
+      return new Response(
+        JSON.stringify({ error: '会话不存在' }),
+        { status: 404 }
+      )
+    }
 
-      // 保存用户消息
-      await prisma.message.create({
-        data: {
-          sessionId: session.id,
-          role: 'user',
-          content: message,
-          phase: session.currentPhase,
-        },
-      })
+    // 保存用户消息
+    await prisma.message.create({
+      data: {
+        sessionId: session.id,
+        role: 'user',
+        content: message,
+        phase: session.currentPhase,
+      },
+    })
 
-      // 更新会话消息计数
-      await prisma.session.update({
-        where: { id: session.id },
-        data: { messageCount: { increment: 1 } },
-      })
+    // 更新会话消息计数
+    await prisma.session.update({
+      where: { id: session.id },
+      data: { messageCount: { increment: 1 } },
+    })
 
-      // 构建用户画像字符串
-      const userProfile = `
+    // 构建用户画像字符串
+    const userProfile = `
 角色：${session.user.role || '未设置'}
 业务线：${session.user.businessLine || '未设置'}
 工作风格：${session.user.workStyle || '未设置'}
@@ -241,7 +253,7 @@ export async function POST(request: NextRequest) {
     console.log('Deepseek API调用，消息历史长度:', messages.length)
 
     // 调用 Deepseek API（非流式，简化处理）
-    const response = await deepseek.chat({
+    const response = await deepseekClient.chat({
       model: 'deepseek-chat',
       messages,
       max_tokens: 1024,
