@@ -168,7 +168,21 @@ coaching-partner/
 
 ## 🚀 部署指南
 
-### Vercel 部署（推荐）
+### Railway 部署（推荐）⭐
+
+Railway 提供了最简单的一键部署体验，自动处理数据库和环境配置。
+
+**详细步骤请查看：[Railway 部署指南](./RAILWAY_DEPLOYMENT.md)**
+
+快速步骤：
+1. 访问 [Railway](https://railway.app) 并登录
+2. 点击 "New Project" → "Deploy from GitHub repo"
+3. 选择本仓库
+4. 添加 PostgreSQL 数据库
+5. 配置环境变量（API Keys）
+6. 等待自动部署完成
+
+### Vercel 部署
 
 1. Fork 本项目到你的 GitHub
 2. 在 [Vercel](https://vercel.com) 导入项目
