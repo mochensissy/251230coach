@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUserStore, useSessionStore } from '@/lib/store'
-import { MessageCircle, TrendingUp, Calendar } from 'lucide-react'
+import { MessageCircle, TrendingUp, Calendar, LogOut, User } from 'lucide-react'
 import { format } from 'date-fns'
 import Image from 'next/image'
 
@@ -70,6 +70,18 @@ export default function DashboardPage() {
     return scenario === 'work_problem' ? '工作难题' : '职业发展'
   }
 
+  const handleLogout = () => {
+    // 清除本地存储
+    localStorage.removeItem('user')
+    localStorage.removeItem('token')
+    
+    // 清除 Zustand store
+    useUserStore.getState().clearUser()
+    
+    // 跳转到登录页
+    router.push('/login')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -81,11 +93,23 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 顶部导航 */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">教练伙伴</h1>
-            <p className="text-gray-600">你好, {username}</p>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-gray-600">
+                <User className="w-5 h-5" />
+                <span>你好, {username}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>退出登录</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
