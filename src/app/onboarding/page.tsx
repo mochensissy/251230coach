@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useOnboardingStore, useUserStore } from '@/lib/store'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
@@ -18,6 +18,22 @@ export default function OnboardingPage() {
   const { setUser } = useUserStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // 检查用户是否已登录
+  useEffect(() => {
+    const userStr = localStorage.getItem('user')
+    if (!userStr) {
+      // 未登录，跳转到登录页
+      router.push('/login')
+      return
+    }
+
+    const user = JSON.parse(userStr)
+    // 如果已完成 onboarding，跳转到 dashboard
+    if (user.onboardingCompleted) {
+      router.push('/dashboard')
+    }
+  }, [router])
 
   const handleNext = () => {
     setStep(currentStep + 1)
