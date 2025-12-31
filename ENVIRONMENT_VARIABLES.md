@@ -39,27 +39,34 @@
 
 ## 📝 在 Railway 中添加环境变量的步骤
 
-### 方法一：在服务中直接添加
+### 添加环境变量
 
 1. 打开 Railway Dashboard
-2. 选择你的 Next.js 服务（不是 PostgreSQL）
+2. 选择你的 Next.js 服务（**不是 PostgreSQL 服务**）
 3. 点击 **"Variables"** 标签
-4. 点击 **"+ New Variable"**
-5. 输入变量名和值
-6. 点击 **"Add"**
+4. 点击 **"+ New Variable"** 或 **"Add Variable"**
+5. 输入变量名：`DEEPSEEK_API_KEY`
+6. 输入变量值：`sk-你的密钥`
+7. 点击 **"Add"** 保存
 
 **需要添加的变量**：
 ```
 DEEPSEEK_API_KEY = sk-你的密钥
 ```
 
-### 方法二：连接 PostgreSQL 数据库
+### DATABASE_URL 会自动配置
 
-1. 在 Next.js 服务中，点击 **"Variables"** 标签
-2. 点击 **"+ Variable Reference"**
-3. 选择 PostgreSQL 服务
-4. 选择 `DATABASE_URL` 变量
-5. 点击 **"Add"**
+**重要**：`DATABASE_URL` 不需要手动添加！
+
+当你在 Railway 项目中同时部署了：
+- Next.js 服务
+- PostgreSQL 数据库
+
+Railway 会**自动**将 PostgreSQL 的 `DATABASE_URL` 注入到 Next.js 服务中。
+
+你可以在 Variables 标签中看到所有环境变量，包括：
+- 你手动添加的 `DEEPSEEK_API_KEY`
+- Railway 自动注入的 `DATABASE_URL`、`PORT` 等
 
 ---
 

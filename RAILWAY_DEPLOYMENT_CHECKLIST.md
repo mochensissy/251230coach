@@ -61,19 +61,19 @@ git push origin main
 ### 3.4 配置环境变量
 在你的 Next.js 服务中：
 1. 点击 **"Variables"** 标签
-2. 添加以下变量：
+2. 点击 **"+ New Variable"** 或 **"Add Variable"**
+3. 添加以下变量：
 
 ```bash
 DEEPSEEK_API_KEY=你的API密钥
 ```
 
-**注意**：`DATABASE_URL` 会自动从 PostgreSQL 服务注入，无需手动添加。
+**注意**：`DATABASE_URL` 会自动从 PostgreSQL 服务注入，Railway 会自动处理服务之间的连接，无需手动添加。
 
-### 3.5 连接数据库到应用
-1. 在 Next.js 服务中，点击 **"Settings"**
-2. 向下滚动到 **"Service Variables"**
-3. 点击 **"+ Variable Reference"**
-4. 选择 PostgreSQL 数据库的 `DATABASE_URL`
+### 3.5 验证数据库连接
+1. PostgreSQL 服务启动后，Railway 会自动将 `DATABASE_URL` 注入到你的 Next.js 服务
+2. 你可以在 Variables 标签中看到所有可用的环境变量（包括自动注入的）
+3. 不需要手动添加 Variable Reference
 
 ### 3.6 触发部署
 1. Railway 会自动检测配置并开始部署

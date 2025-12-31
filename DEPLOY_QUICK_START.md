@@ -21,10 +21,13 @@
 ```
 在 Next.js 服务中：
 1. 点击 "Variables" 标签
-2. 添加变量：
-   DEEPSEEK_API_KEY = sk-你的密钥
-3. 点击 "+ Variable Reference"
-4. 选择 PostgreSQL 的 DATABASE_URL
+2. 点击 "+ New Variable" 或 "Add Variable"
+3. 添加变量：
+   Variable Name: DEEPSEEK_API_KEY
+   Value: sk-你的密钥
+4. 点击 "Add" 保存
+
+注意：DATABASE_URL 会自动从 PostgreSQL 服务注入，无需手动添加！
 ```
 
 ### 第 4 步：等待部署（1分钟）
