@@ -5,7 +5,11 @@ nixPkgs = ['nodejs_20', 'openssl']
 cmds = ['npm install']
 
 [phases.build]
-cmds = ['npx prisma generate', 'npm run build']
+cmds = [
+  'export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/railway"',
+  'npx prisma generate',
+  'npm run build'
+]
 
 [start]
 cmd = 'npx prisma migrate deploy && npm start'
