@@ -372,3 +372,4 @@ function generateSummary(keywords: any[], clusters: any[], sentiment: any): stri
   return `基于最近30天的数据分析，员工最关注的问题是：${topKeywords}。主要挑战集中在"${topCluster}"领域。整体情感倾向为${sentimentText}。`;
 }
 
+

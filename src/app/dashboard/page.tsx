@@ -22,9 +22,12 @@ interface Session {
 export default function DashboardPage() {
   const router = useRouter()
   const { setSession } = useSessionStore()
+  const { setUser } = useUserStore()
   const [username, setUsername] = useState('')
   const [sessions, setSessions] = useState<Session[]>([])
   const [loading, setLoading] = useState(true)
+  const [creatingSession, setCreatingSession] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     // 从 localStorage 读取用户信息
@@ -42,7 +45,10 @@ export default function DashboardPage() {
       return
     }
 
+    // 同时更新本地state和Zustand store
     setUsername(user.username)
+    setUser(user.username, user.id) // 确保useUserStore也有username
+    console.log('Dashboard初始化，用户:', user.username, 'ID:', user.id)
     fetchSessions(user.username)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // 只在组件挂载时执行一次
@@ -60,7 +66,14 @@ export default function DashboardPage() {
   }
 
   const startNewSession = async (scenario: string) => {
+    if (creatingSession) return // 防止重复点击
+    
+    setCreatingSession(true)
+    setError('')
+    
     try {
+      console.log('Creating session with:', { username, scenario })
+      
       const response = await fetch('/api/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,13 +81,26 @@ export default function DashboardPage() {
       })
 
       const data = await response.json()
+      console.log('Session response:', data)
+
+      if (!response.ok) {
+        throw new Error(data.error || '创建对话失败')
+      }
 
       if (data.success) {
+        console.log('准备跳转到聊天页面，session id:', data.session.id)
         setSession(data.session.id, scenario)
+        console.log('即将执行路由跳转...')
         router.push(`/chat/${data.session.id}`)
+        console.log('路由跳转命令已执行')
+      } else {
+        throw new Error('创建对话失败，请重试')
       }
     } catch (error) {
       console.error('Failed to create session:', error)
+      setError((error as Error).message || '创建对话失败，请重试')
+    } finally {
+      setCreatingSession(false)
     }
   }
 
@@ -134,10 +160,17 @@ export default function DashboardPage() {
             选择一个场景开始你的教练之旅
           </p>
 
+          {error && (
+            <div className="bg-red-500 text-white p-4 rounded-lg mb-4">
+              {error}
+            </div>
+          )}
+
           <div className="grid md:grid-cols-2 gap-4">
             <button
               onClick={() => startNewSession('work_problem')}
-              className="bg-white text-gray-900 p-6 rounded-xl hover:shadow-xl transition-all text-left group relative overflow-hidden"
+              disabled={creatingSession}
+              className="bg-white text-gray-900 p-6 rounded-xl hover:shadow-xl transition-all text-left group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -147,7 +180,7 @@ export default function DashboardPage() {
                     在实际工作中遇到挑战,通过教练式提问,探索解决方案
                   </p>
                   <p className="text-primary-600 text-sm mt-3 font-medium group-hover:translate-x-2 transition-transform">
-                    开始对话 →
+                    {creatingSession ? '创建中...' : '开始对话 →'}
                   </p>
                 </div>
                 <div className="flex-shrink-0 ml-4">
@@ -166,7 +199,8 @@ export default function DashboardPage() {
 
             <button
               onClick={() => startNewSession('career_development')}
-              className="bg-white text-gray-900 p-6 rounded-xl hover:shadow-xl transition-all text-left group relative overflow-hidden"
+              disabled={creatingSession}
+              className="bg-white text-gray-900 p-6 rounded-xl hover:shadow-xl transition-all text-left group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -176,7 +210,7 @@ export default function DashboardPage() {
                     对职业路径有迷茫,一起厘清思路,制定发展计划
                   </p>
                   <p className="text-indigo-600 text-sm mt-3 font-medium group-hover:translate-x-2 transition-transform">
-                    开始对话 →
+                    {creatingSession ? '创建中...' : '开始对话 →'}
                   </p>
                 </div>
                 <div className="flex-shrink-0 ml-4">

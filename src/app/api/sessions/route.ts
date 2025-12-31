@@ -35,18 +35,8 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // 记录分析日志
-    await prisma.analyticsLog.create({
-      data: {
-        eventType: 'session_start',
-        scenario,
-        phase: 'goal',
-        metadata: JSON.stringify({
-          roleType: user.role,
-          businessLine: user.businessLine,
-        }),
-      },
-    })
+    // 注意：不在这里记录 session_start 事件
+    // 只有当用户真正发送第一条消息时才记录，避免误点击造成的统计偏差
 
     return NextResponse.json({
       success: true,

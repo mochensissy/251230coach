@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Test</title>
+</head>
+<body>
+    <h1>测试Dashboard按钮点击</h1>
+    <button onclick="testClick()">测试按钮</button>
+    <div id="result"></div>
+    
+    <script>
+        async function testClick() {
+            console.log('按钮被点击了！');
+            document.getElementById('result').innerHTML = '按钮点击成功！';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/sessions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        username: 'cliusisi', 
+                        scenario: 'work_problem' 
+                    }),
+                });
+                
+                const data = await response.json();
+                console.log('API响应:', data);
+                document.getElementById('result').innerHTML += '<br>API响应: ' + JSON.stringify(data);
+            } catch (error) {
+                console.error('错误:', error);
+                document.getElementById('result').innerHTML += '<br>错误: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

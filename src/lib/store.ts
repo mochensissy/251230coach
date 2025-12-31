@@ -7,8 +7,8 @@ interface OnboardingData {
   role: string
   businessLine: string
   workStyle: string
-  developmentGoal: string
-  workChallenge: string
+  scenario: string // 'work_problem' | 'career_development'
+  specificQuestion: string // 根据场景询问的具体问题
 }
 
 interface OnboardingState {
