@@ -128,13 +128,6 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-
-        {/* 管理员入口 */}
-        <div className="mt-4 pt-4 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-500">
-            管理员用户登录后自动进入管理后台
-          </p>
-        </div>
       </div>
     </div>
   );
