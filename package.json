@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/railway} prisma generate && next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/railway} prisma generate",
+    "postinstall": "prisma generate || echo 'Prisma generate failed, DATABASE_URL may be missing'",
     "prisma:migrate": "prisma migrate deploy"
   },
   "dependencies": {
