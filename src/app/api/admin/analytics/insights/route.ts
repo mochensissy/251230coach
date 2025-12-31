@@ -116,11 +116,12 @@ export async function POST(request: NextRequest) {
     // 4. 准备分析数据
     const topics = recentSessions
       .map(s => s.summaryReport?.topic || s.user.workChallenge)
-      .filter(Boolean)
+      .filter((t): t is string => typeof t === 'string' && t.length > 0)
       .slice(0, 50); // 限制数量
 
     const userMessages = recentMessages
       .map(m => m.content)
+      .filter((c): c is string => typeof c === 'string' && c.length > 0)
       .slice(0, 100); // 限制数量
 
     console.log(`🤖 开始AI分析: ${topics.length}个主题, ${userMessages.length}条消息`);

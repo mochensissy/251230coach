@@ -91,7 +91,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           console.log('🟢 Chat: 读取到的initialQuestion:', initialQuestion)
           
           // 检查这个session的创建时间，只有刚创建的session（5秒内）才使用initialQuestion
-          const sessionCreatedAt = new Date(sessionData.session.startedAt).getTime()
+          const sessionCreatedAt = new Date(data.session.startedAt).getTime()
           const now = Date.now()
           const timeDiff = now - sessionCreatedAt
           const isNewSession = timeDiff < 5000 // 5秒内创建的session
