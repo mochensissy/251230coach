@@ -67,6 +67,9 @@ export default function RegisterPage() {
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
 
+      // 清空之前的 onboarding 缓存，确保从第一步开始
+      localStorage.removeItem('onboarding-storage');
+
       // 跳转到用户画像采集页面
       router.push('/onboarding');
     } catch (err) {

@@ -21,23 +21,35 @@ interface Session {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { username, userId } = useUserStore()
   const { setSession } = useSessionStore()
+  const [username, setUsername] = useState('')
   const [sessions, setSessions] = useState<Session[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!username) {
+    // 从 localStorage 读取用户信息
+    const userStr = localStorage.getItem('user')
+    if (!userStr) {
+      router.push('/login')
+      return
+    }
+
+    const user = JSON.parse(userStr)
+    
+    // 如果未完成 onboarding,跳转到 onboarding
+    if (!user.onboardingCompleted) {
       router.push('/onboarding')
       return
     }
 
-    fetchSessions()
-  }, [username, router])
+    setUsername(user.username)
+    fetchSessions(user.username)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // 只在组件挂载时执行一次
 
-  const fetchSessions = async () => {
+  const fetchSessions = async (user: string) => {
     try {
-      const response = await fetch(`/api/sessions?username=${username}`)
+      const response = await fetch(`/api/sessions?username=${user}`)
       const data = await response.json()
       setSessions(data.sessions || [])
     } catch (error) {

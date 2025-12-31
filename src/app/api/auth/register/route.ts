@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
           username,
           password: hashPassword(password),
           activationCodeId: codeRecord.id,
+          onboardingCompleted: false, // 明确设置为 false，确保新用户需要完成引导
         },
       });
 
@@ -114,6 +115,7 @@ export async function POST(request: NextRequest) {
         id: user.id,
         username: user.username,
         isAdmin: user.isAdmin,
+        onboardingCompleted: user.onboardingCompleted, // 返回 onboarding 状态
       },
       token,
     });

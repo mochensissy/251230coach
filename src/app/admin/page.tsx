@@ -184,7 +184,22 @@ export default function AdminDashboard() {
         </div>
 
         {/* 快捷操作按钮 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Link
+            href="/admin/analytics"
+            className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl shadow-sm p-6 border-2 border-purple-200 hover:shadow-md transition group"
+          >
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                <BarChart3 className="w-6 h-6 text-white" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">📊 数据分析</h3>
+                <p className="text-sm text-gray-600">实时数据与AI洞察</p>
+              </div>
+            </div>
+          </Link>
+
           <Link
             href="/admin/activation-codes"
             className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 hover:shadow-md transition group"

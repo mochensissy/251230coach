@@ -78,10 +78,21 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
           createdAt: msg.createdAt,
         })))
 
-        // 如果是新会话，生成开场白
+        // 如果是新会话，显示默认开场白（不调用 API）
         if (historyMessages.length === 0) {
-          console.log('生成开场白...')
-          await generateWelcomeMessage(data.session.scenario)
+          console.log('显示默认开场白...')
+          setMessages([{
+            id: Date.now(),
+            role: 'assistant',
+            content: `你好！我是你的 AI 教练伙伴 🤝
+
+我看到你在用户画像中提到的工作挑战，很高兴能陪伴你一起探索和思考。
+
+作为教练，我不会直接给你答案，而是通过提问帮助你自己找到解决方案。
+
+请告诉我，你现在最想聊什么话题？或者从你的工作挑战开始？`,
+            createdAt: new Date().toISOString(),
+          }])
         }
       } else {
         throw new Error('API返回数据格式错误')
@@ -102,58 +113,6 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
   useEffect(() => {
     scrollToBottom()
   }, [messages])
-
-  const generateWelcomeMessage = async (scenario: string) => {
-    setLoading(true)
-
-    try {
-      const response = await fetch('/api/coaching/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          message: `[系统指令：这是新对话的开始。你已经通过用户画像知道了用户的背景信息，包括他们填写的工作挑战/困惑。
-
-请生成一个热情、专业的开场白，要求：
-1. 简短问候并介绍你的教练角色
-2. 明确引用用户画像中的"工作挑战"字段内容，让用户感到你已经了解他们的困惑
-3. 基于用户的具体困惑，提供 2-3 个可以深入探讨的方向供用户选择
-
-示例格式："你好！我是你的AI教练伙伴。我看到你提到了【引用用户的工作挑战】，这确实是很多人会面临的挑战。我们可以从以下几个方向来探讨：1. ... 2. ... 3. ... 你最想从哪个方向开始？"
-
-请直接开始，不要重复系统指令。]`,
-          username,
-        }),
-      })
-
-      const data = await response.json()
-      
-      if (data.success && data.message) {
-        setMessages([{
-          id: Date.now(),
-          role: 'assistant',
-          content: data.message,
-          createdAt: new Date().toISOString(),
-        }])
-      } else {
-        throw new Error(data.error || 'Failed to get welcome message')
-      }
-    } catch (error) {
-      console.error('Failed to generate welcome message:', error)
-      setMessages([{
-        id: Date.now(),
-        role: 'assistant',
-        content: `你好！我是你的 AI 教练伙伴。很高兴能够陪伴你一起探索。
-
-作为教练，我不会直接给你建议，而是通过提问帮助你自己找到答案。
-
-请告诉我你想聊什么话题，我会通过引导性问题帮助你思考。`,
-        createdAt: new Date().toISOString(),
-      }])
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleSend = async () => {
     if (!input.trim() || loading) return

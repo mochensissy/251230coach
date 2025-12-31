@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import * as crypto from 'crypto'
+
+// 密码哈希函数
+function hashPassword(password: string): string {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
 
 const createDbNotReadyResponse = (details?: string) =>
   NextResponse.json(
@@ -43,30 +49,44 @@ export async function POST(request: NextRequest) {
 
     console.log('Creating/updating user:', username)
 
-    // 创建或更新用户
-    const user = await prisma.user.upsert({
-      where: { username },
-      update: {
-        email,
-        role,
-        businessLine,
-        workStyle,
-        developmentGoal,
-        workChallenge,
-        onboardingCompleted: true,
-        updatedAt: new Date(),
-      },
-      create: {
-        username,
-        email,
-        role,
-        businessLine,
-        workStyle,
-        developmentGoal,
-        workChallenge,
-        onboardingCompleted: true,
-      },
+    // 检查用户是否已存在
+    const existingUser = await prisma.user.findUnique({
+      where: { username }
     })
+
+    let user
+    if (existingUser) {
+      // 用户已存在，只更新 onboarding 相关字段
+      user = await prisma.user.update({
+        where: { username },
+        data: {
+          email,
+          role,
+          businessLine,
+          workStyle,
+          developmentGoal,
+          workChallenge,
+          onboardingCompleted: true,
+          updatedAt: new Date(),
+        },
+      })
+    } else {
+      // 新用户，需要创建密码（使用用户名作为默认密码）
+      const defaultPassword = hashPassword(username)
+      user = await prisma.user.create({
+        data: {
+          username,
+          password: defaultPassword,
+          email,
+          role,
+          businessLine,
+          workStyle,
+          developmentGoal,
+          workChallenge,
+          onboardingCompleted: true,
+        },
+      })
+    }
 
     console.log('User created/updated successfully:', user.id)
 

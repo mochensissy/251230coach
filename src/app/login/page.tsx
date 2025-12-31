@@ -43,6 +43,8 @@ export default function LoginPage() {
       if (data.user.isAdmin) {
         router.push('/admin');
       } else if (!data.user.onboardingCompleted) {
+        // 未完成引导的用户，清空之前的缓存，从第一步开始
+        localStorage.removeItem('onboarding-storage');
         router.push('/onboarding');
       } else {
         router.push('/dashboard');

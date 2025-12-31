@@ -7,8 +7,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./prisma/dev.db"
 }
 
 // 1. 用户表
@@ -152,4 +152,43 @@ model AdminLog {
   createdAt   DateTime  @default(now())
 
   @@map("admin_logs")
+}
+
+// 9. 数据分析洞察表（AI分析结果缓存）
+model AnalyticsInsight {
+  id            Int       @id @default(autoincrement())
+  insightType   String    // 'keywords', 'clusters', 'sentiment', 'trends', 'daily_analysis'
+  category      String?   // 分类标签
+  content       String    // JSON 格式存储分析结果
+  score         Float?    // 相关性或置信度评分
+  generatedAt   DateTime  @default(now())
+  expiresAt     DateTime? // 缓存过期时间
+
+  @@map("analytics_insights")
+}
+
+// 10. 关键词统计表
+model Keyword {
+  id          Int       @id @default(autoincrement())
+  keyword     String    @unique
+  category    String?   // 所属类别
+  frequency   Int       @default(1)
+  trend       String?   // 'up', 'down', 'stable'
+  lastUpdated DateTime  @updatedAt
+
+  @@map("keywords")
+}
+
+// 11. 主题聚类表
+model TopicCluster {
+  id            Int       @id @default(autoincrement())
+  clusterName   String    // 聚类名称
+  description   String?   // 聚类描述
+  sessionIds    String    // JSON 数组，存储相关的会话ID
+  size          Int       @default(0) // 聚类包含的会话数量
+  percentage    Float?    // 占比
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("topic_clusters")
 }

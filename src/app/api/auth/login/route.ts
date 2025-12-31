@@ -30,6 +30,12 @@ export async function POST(request: NextRequest) {
       where: { username },
     });
 
+    console.log('Login attempt for username:', username);
+    console.log('User found:', user ? 'Yes' : 'No');
+    if (user) {
+      console.log('User has password:', user.password ? 'Yes' : 'No');
+    }
+
     if (!user) {
       return NextResponse.json(
         { error: '用户名或密码错误' },
@@ -39,6 +45,10 @@ export async function POST(request: NextRequest) {
 
     // 验证密码
     const passwordHash = hashPassword(password);
+    console.log('Input password hash:', passwordHash);
+    console.log('Stored password hash:', user.password);
+    console.log('Passwords match:', user.password === passwordHash);
+    
     if (user.password !== passwordHash) {
       return NextResponse.json(
         { error: '用户名或密码错误' },

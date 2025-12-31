@@ -14,10 +14,13 @@
     "@anthropic-ai/sdk": "^0.30.1",
     "@prisma/client": "^5.22.0",
     "date-fns": "^4.1.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.4",
     "lucide-react": "^0.460.0",
     "next": "15.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "recharts": "^3.6.0",
     "zustand": "^5.0.1"
   },
   "devDependencies": {

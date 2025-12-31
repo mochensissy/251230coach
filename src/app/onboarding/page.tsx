@@ -32,8 +32,14 @@ export default function OnboardingPage() {
     // 如果已完成 onboarding，跳转到 dashboard
     if (user.onboardingCompleted) {
       router.push('/dashboard')
+      return
     }
-  }, [router])
+
+    // 新用户：重置 onboarding 状态，从第一步开始
+    setStep(0)
+    updateData('username', user.username)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // 只在组件挂载时执行一次
 
   const handleNext = () => {
     setStep(currentStep + 1)

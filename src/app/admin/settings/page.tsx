@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Save, Eye, EyeOff, Zap } from 'lucide-react';
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -12,7 +12,9 @@ export default function SettingsPage() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string; details?: any } | null>(null);
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -73,6 +75,55 @@ export default function SettingsPage() {
       setMessage({ type: 'error', text: '网络错误，请稍后重试' });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleTestApi = async () => {
+    if (!apiKey) {
+      setTestResult({
+        success: false,
+        message: '请先输入 API Key',
+      });
+      return;
+    }
+
+    setTesting(true);
+    setTestResult(null);
+    setMessage({ type: '', text: '' });
+
+    try {
+      const response = await fetch('/api/admin/test-api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminUsername,
+          apiKey,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setTestResult({
+          success: true,
+          message: data.message,
+          details: data.details,
+        });
+      } else {
+        setTestResult({
+          success: false,
+          message: data.error || '测试失败',
+          details: data.details,
+        });
+      }
+    } catch (error) {
+      console.error('测试 API 失败:', error);
+      setTestResult({
+        success: false,
+        message: '网络错误，请稍后重试',
+      });
+    } finally {
+      setTesting(false);
     }
   };
 
@@ -171,17 +222,77 @@ export default function SettingsPage() {
               </p>
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={handleTestApi}
+                disabled={testing || !apiKey}
+                className="flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Zap className="w-5 h-5 mr-2" />
+                {testing ? '测试中...' : '测试连接'}
+              </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Save className="w-5 h-5 mr-2" />
                 {saving ? '保存中...' : '保存配置'}
               </button>
             </div>
           </form>
+
+          {/* 测试结果 */}
+          {testResult && (
+            <div
+              className={`mt-6 p-4 rounded-lg border ${
+                testResult.success
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-red-50 border-red-200'
+              }`}
+            >
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  {testResult.success ? (
+                    <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <div className="ml-3 flex-1">
+                  <h3 className={`text-sm font-medium ${testResult.success ? 'text-green-800' : 'text-red-800'}`}>
+                    {testResult.message}
+                  </h3>
+                  {testResult.details && (
+                    <div className={`mt-2 text-sm ${testResult.success ? 'text-green-700' : 'text-red-700'}`}>
+                      {typeof testResult.details === 'string' ? (
+                        <p>{testResult.details}</p>
+                      ) : (
+                        <div className="space-y-1">
+                          {testResult.details.model && (
+                            <p>模型: {testResult.details.model}</p>
+                          )}
+                          {testResult.details.response && (
+                            <p className="italic">"{testResult.details.response}"</p>
+                          )}
+                          {testResult.details.usage && (
+                            <p className="text-xs mt-2">
+                              Token 使用: {testResult.details.usage.prompt_tokens} (输入) + {testResult.details.usage.completion_tokens} (输出) = {testResult.details.usage.total_tokens} (总计)
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 使用说明 */}
